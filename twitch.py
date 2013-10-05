@@ -1,5 +1,5 @@
 #-*- encoding: utf-8 -*-
-import urllib2
+import urllib2, sys
 from urllib import quote_plus
 import re
 try:
@@ -155,11 +155,12 @@ class TwitchVideoResolver(object):
                 Keys.RTMP_URL: Urls.FORMAT_FOR_RTMP.format(**streamVars)}
 
     def _bestMatchForChosenQuality(self, streams, maxQuality):
-        streams.sort(key=lambda t: t[Keys.QUALITY])
+        streams.sort(key=lambda t: (t[Keys.QUALITY].lower(), t[Keys.BITRATE]))
         bestMatch = streams[0]
-        for stream in streams:
-            if stream[Keys.QUALITY] <= maxQuality:
-                bestMatch = stream
+        if maxQuality != sys.maxInt:
+            for stream in streams:
+                if stream[Keys.QUALITY] <= maxQuality:
+                    bestMatch = stream
         return bestMatch
 
 
@@ -169,6 +170,7 @@ class Keys(object):
     string-constants
     '''
 
+    BITRATE = 'bitrate'
     CHANNEL = 'channel'
     CHANNELS = 'channels'
     CONNECT = 'connect'
